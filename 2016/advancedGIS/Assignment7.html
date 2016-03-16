@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+       
+        h1 {
+            font-family: helvetica;
+            color: #0F2838;
+            font-weight: 800;
+            text-decoration: underline;
+        }
+        a {
+            font-family: garamond;
+            color: #7E9C68;
+            text-decoration: inherit;
+            letter-spacing: 0.5em;
+            font-weight: 800;
+        }
+        p {
+            font-family: garamond;
+            color:#666666;
+        }
+        .room_number {
+            font-weight: 800;
+            color: #0F2838;
+        }
+        </style>
+    
+<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <!--
+    Load CartoDB's code so we can pull in our CartoDB maps.
+    -->
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script>
+        var dataLayer;
+      $(document).ready(function () {
+          cartodb.createVis('map','https://mitcj643.cartodb.com/api/v2/viz/ee4aeabc-dffd-11e5-a53f-0e31c9be1b51/viz.json')
+          .done(function (vis, layers) {
+              dataLayer=layers[1].getSubLayer(0);
+          });
+          
+          $('.Neighborhood-picker').change(function (){
+              var neighbourhood = $(this).val();
+              var sql;
+              if (neighbourhood === 'All Neighbourhoods') {
+                  sql = "SELECT * FROM airbnb_listings";
+              }
+              else {
+                sql = "SELECT * FROM airbnb_listings WHERE neighbourhood = '" + neighbourhood + "'";
+              dataLayer.setSQL(sql);
+              }
+              });
+          });
+          
+    </script>
+</head>
+<body>
+    <h1>Los Angeles Airbnb Listings</h1>
+    <a href="https://www.airbnb.com/about/about-us">About Airbnb</a>
+    <p style="font-size: 18px; font-weight: 600; font-family: helvetica; color: #3282B8;">
+        Filter by:
+    </p>
+        <select class="Neighborhood-picker">
+            <option value="all">All Neighbourhoods</option>
+            <option value="Hollywood">Hollywood</option >
+            <option value="South LA">South LA</option>
+            <option value="Mid-City">Mid-City</option>
+            <option value="Venice">Venice</option>
+            <option value="Mid-Wilshire">Mid-Wilshire</option>
+        </select>
+    <br>
+    <br>
+    <span class="room_type">
+        <p style="font-size: 18px; font-weight: 600; font-family: helvetica; color: #3282B8;">
+            Room Type:
+        </p>
+        <p>
+            Entire Home/apt: <span class= "room_number">12006 </span>
+            <br>
+            Private Room: <span class="room_number"> 7739 </span>
+            <br>
+            Shared Room: <span class="room_number"> 817 </span>
+        </p>
+        </span>
+            <br>
+            <br>
+            <br>
+    <div id="map"></div>
+</body>
+</html>
