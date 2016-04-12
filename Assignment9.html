@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--Cartodb code to load map-->
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+<!--style for body and map-->
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-family: monospace;
+      }
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+        
+/*button styles*/
+        .land_use {
+            position: absolute;
+            top: 75px;
+            right: 15px;
+        }
+        .contaminated_sites {
+            position: absolute;
+            top: 100px;
+            right: 15px;
+        }
+        .contaminated_gw {
+            position: absolute;
+            top: 125px;
+            right: 15px;
+        }
+        
+/* 
+        from: http://www.urbanreviewer.org/#map=12/40.7548/-73.9273&highlights=~(dispositions~(~'recreational))&sidebar=plans
+        */
+        #side-box.narrow {
+            width: 25%;
+        }
+        #side-box {
+            background: white;
+            border-left: 2px solid #8e8e8e;
+            display: none;
+            height: 100%;
+            overflow-y: scroll;
+            padding: 15px;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 2001;
+        }
+        #title-text {
+            border-bottom: 2px dashed #118C4E;
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            text-align: center;
+        }
+        #enviro-receptor {
+            background: #FF9009;
+            color: black;
+            line-height: 1px;
+            margin-left: -15px;
+            margin-right: -15px;
+            margin-top: 30px;
+            padding: 1px;
+            border-bottom: solid black 1px;
+            border-top: solid black 1px;
+        }
+        h3{
+            font-size: 18px;
+        }
+        h4 {
+            font-family: serif;
+        }
+    </style>
+    
+<!--initalize map from CartoDB-->
+    <script>
+        var dataLayer;
+      $(document).ready(function (){
+        cartodb.createVis('map', 'https://mitcj643.cartodb.com/api/v2/viz/f1ae8d92-fb3e-11e5-8e86-0ecfd53eb7d3/viz.json')
+          .done(function (vis, layers) {
+              dataLayer=layers[1].getSubLayer(1);
+          });
+          
+          $('#high-contamination').click(function (){
+              var sql = "SELECT * FROM contaminated_sites_newark WHERE category = 'A'";
+              dataLayer.setSQL(sql);
+          });
+      });
+    </script>    
+    
+</head>
+<body>
+<!--map-->
+    <div id="map"></div>
+    
+<!--Buttons
+    <button class="land_use">Land Use</button>
+    <button class="contaminated_sites">Contaminated Sites</button>
+    <button class="contaminated_gw">Contaminated Groundwater</button>
+-->
+
+    
+<!--sidebox-->
+    <div id="side-box" class="narrow" style="display:block;">
+        <div id="title-text">
+            <h1>Newark Critical Environmental Hazards</h1>
+        </div>
+        <div id="intro-text">
+                <h4>Description about Newark hazards</h4>
+            </div>
+        
+<!--        Contaminated Sites          -->
+        <div id="enviro-receptor">
+                <h3>Contaminated Sites</h3>
+            </div>
+        <div id="receptor-description">
+                <h4>Description of contaminated sites</h4>
+             </div>
+        <div id="data-selection">
+                <h4>Display levels of contamination:</h4>
+                
+                <input type="checkbox" id="high-contamination">
+                     <label class="checkbox-label" for="high-contamination">High</label>
+                <input type="checkbox" id="medium-contamination">
+                    <label class="checkbox-label" for="medium-contamination">Medium</label>    
+                <input type="checkbox" id="low-contamination">
+                    <label class="checkbox-label" for="low-contamination">Low</label>
+        
+        </div>
+        
+<!--        Air Pollution               -->
+        <div id="enviro-receptor">
+                <h3>Air Pollution</h3>
+            </div>     
+            <div id="receptor-description">
+                <h4>Description of Air Pollution</h4>
+             </div>
+    </div>
+</body>
+</html>
