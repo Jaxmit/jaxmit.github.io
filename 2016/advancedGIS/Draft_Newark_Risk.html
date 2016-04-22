@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--Cartodb code to load map-->
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+<!--style for body and map-->
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-family: monospace;
+      }
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+        
+/* 
+        from: http://www.urbanreviewer.org/#map=12/40.7548/-73.9273&highlights=~(dispositions~(~'recreational))&sidebar=plans
+        */
+        #side-box.narrow {
+            width: 25%;
+        }
+        #side-box {
+            background: white;
+            border-left: 2px solid #8e8e8e;
+            display: none;
+            height: 100%;
+            overflow-y: scroll;
+            padding: 15px;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 2001;
+        }
+        #title-text {
+            border-bottom: 2px dashed #118C4E;
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            text-align: center;
+        }
+        #enviro-receptor {
+            background: #FF9009;
+            color: black;
+            line-height: 1px;
+            margin-left: -15px;
+            margin-right: -15px;
+            margin-top: 30px;
+            padding: 1px;
+            border-bottom: solid black 1px;
+            border-top: solid black 1px;
+        }
+        h3{
+            font-size: 18px;
+        }
+        h4 {
+            font-family: serif;
+        }
+        
+    </style>
+    
+<!--initalize map from CartoDB-->
+    <script>
+        var dataLayer;
+      $(document).ready(function (){
+        cartodb.createVis('map', 'https://mitcj643.cartodb.com/api/v2/viz/f1ae8d92-fb3e-11e5-8e86-0ecfd53eb7d3/viz.json')
+          .done(function (vis, layers) {
+              dataLayer=layers[1].getSubLayer(2);
+          });
+          
+          function updateSql() {
+              var sql = "SELECT * FROM caa_permit";
+              var whereConditions = [];
+              if ($('#major').is(':checked')) {
+                  whereConditions.push("permit_ty = 'Major Emissions'");
+              }
+              if ($('#synthetic').is(':checked')) {
+                  whereConditions.push("permit_ty = 'Synthetic Minor Emissions'");
+              }
+              if ($('#minor').is(':checked')) {
+                  whereConditions.push("permit_ty = 'Minor Emissions'");
+              }
+              if (whereConditions.length > 0) {
+                  sql+= ' WHERE ' + whereConditions.join(' OR ');
+              }
+              console.log(sql);
+              dataLayer.setSQL(sql);
+           }
+          
+          
+          $('#major').change(function (){
+              updateSql();
+          });
+          $('#synthetic').change(function (){
+              updateSql();
+          });
+          $('#minor').change(function (){
+              updateSql();
+          });
+         });
+    </script>    
+    
+</head>
+<body>
+<!--map-->
+    <div id="map"></div>
+    
+<!--Buttons
+    <button class="land_use">Land Use</button>
+    <button class="contaminated_sites">Contaminated Sites</button>
+    <button class="contaminated_gw">Contaminated Groundwater</button>
+-->
+
+    
+<!--sidebox-->
+    <div id="side-box" class="narrow" style="display:block;">
+        <div id="title-text">
+            <h1>Newark Risk to Air Pollution</h1>
+        </div>
+        <div id="intro-text">
+                <h4>Degredation of air quality from emissions. Two types of sources - point and nonpoint</h4>
+            </div>
+        
+<!--        Point source pollution          -->
+        <div id="enviro-receptor">
+                <h3>Point Source Pollution</h3>
+            </div>
+        <div id="receptor-description">
+                <h4>Point source pollution is from a single stationary source, for example waste incinerators.</h4>
+             </div>
+        <div id="data-selection">
+                <h4>Point source pollution facilities permitted by the Clean Air Act
+                    <br>
+                    Types of Permits:
+            </h4>                
+                <input type="checkbox" id="major">
+                     <label class="checkbox-label" for="major">Major Emissions</label>
+            <br>
+                <input type="checkbox" id="synthetic">
+                    <label class="checkbox-label" for="synthetic">Synthetic Minor Emissions</label> 
+            <br>
+                <input type="checkbox" id="minor">
+                    <label class="checkbox-label" for="minor">Minor Emissions</label>
+        
+        </div>
+        
+<!--        Nonpoint source               -->
+        <div id="enviro-receptor">
+                <h3>Nonpoint Source Pollution</h3>
+            </div>     
+            <div id="receptor-description">
+                <h4>Nonpoint source pollution is from several different sources such as busy highways.</h4>
+             </div>
+        <div id="data-selection">
+                <h4>Nonpoint source pollution in Newark</h4>
+    </div>
+</body>
+</html>
