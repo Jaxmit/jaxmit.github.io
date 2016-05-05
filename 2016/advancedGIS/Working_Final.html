@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+<!--Load Libraries-->
+
+    
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">  
+    
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+    
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    
+    
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+    
+    
+    
+<!--style for body and map-->
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-family: monospace;
+      }
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+        div.cartodb-share a {
+            display: none;
+        }
+        div.cartodb-legend-stack {
+            left: 30px;
+            right: auto;
+        }
+        
+        
+/* 
+        from: http://www.urbanreviewer.org/#map=12/40.7548/-73.9273&highlights=~(dispositions~(~'recreational))&sidebar=plans
+        */
+        .sidepanel {
+            background-color: #FFF;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30%;
+            height: 100%;
+            overflow: auto;
+            border-left: solid #585858 1px;
+        }
+        .wrapper{
+            display: block;
+            padding: 4px 30px 0 30px; 
+        }
+        #title-text {
+            border-bottom: 4px dashed #118C4E;
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            text-align: center;
+        }
+        #enviro-receptor {
+            background: #FF9009;
+            color: black;
+            line-height: 1px;
+            margin-left: -15px;
+            margin-right: -15px;
+            margin-top: 30px;
+            padding: 1px;
+            border-bottom: solid black 1px;
+            border-top: solid black 1px;
+        }
+        h3{
+            font-size: 18px;
+        }
+        h4 {
+            font-family: serif;
+        }
+        
+/*        accordion style       */
+        <style>
+        #panel, #flip {
+            padding: 20px;
+            text-align: center;
+            border: solid 1px;
+        }
+
+        #panel {
+            margin: 20px;
+            display: none;        
+        }
+        
+/*       style for tabs      */
+        ul.tab {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            border-bottom: 1px solid black;
+        }
+        ul.tab li {float: left;
+        }
+        ul.tab li a {
+            display: inline-block;
+            color: black;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 18px;
+        }
+        ul.tab li a:hover {
+            font-weight: bold;
+        }
+        ul.tab li a:focus, .active {
+            background-color: #FF9009;
+            font-weight: bold;
+        }
+        .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border-top: none;
+        }
+        
+        /*          Cartodb legend style        */
+        div#legendmajor.bullet {
+            background: #142673;
+        }
+        div#legendsynthetic.bullet {
+            background: #0070e1;
+        }
+        div#legendminor.bullet {
+            background: #00c5ff;
+        }
+        
+        div#legendroads.bullet {
+            background: black; 
+        }
+        div#legendtruck.bullet {
+            background: #229A00;
+        }
+        div#high-leg.bullet {
+            background: #B40903;
+        }
+        div#elevated-leg.bullet {
+            background: #FF9900;
+        }
+        
+
+    </style>
+            
+<!--initalize map from CartoDB-->
+    <script>
+        var dataLayer;
+        var dataLayerRoads;
+      $(document).ready(function (){
+        cartodb.createVis('map', 'https://mitcj643.cartodb.com/api/v2/viz/f1ae8d92-fb3e-11e5-8e86-0ecfd53eb7d3/viz.json',
+                         {
+           cartodb_logo:false,
+            search:false,
+//            legends:false,
+            
+        })
+    
+          .done(function (vis, layers) {
+            dataLayer=layers[1].getSubLayer(2);
+            dataLayerRoads=layers[1].getSubLayer(3);
+ 
+          });
+          
+          function updateSql() {
+              var sql = "SELECT * FROM caa_permit";
+              var whereConditions = [];
+              if ($('#major').is(':checked')) {
+                  whereConditions.push("permit_ty = 'Major Emissions'");
+              }
+              if ($('#synthetic').is(':checked')) {
+                  whereConditions.push("permit_ty = 'Synthetic Minor Emissions'");
+              }
+              if ($('#minor').is(':checked')) {
+                  whereConditions.push("permit_ty = 'Minor Emissions'");
+              }
+              if ($('#no-violation').is(':checked')) {
+                  whereConditions.push("fac_curr_c = 'No Violation'");
+              }
+              if ($('#non-compliance').is(':checked')) {
+                  whereConditions.push("fac_curr_c = 'In Violation'");
+              }
+              if ($('#violation').is(':checked')) {
+                  whereConditions.push("fac_curr_c = 'SNC/Serious Viol'");
+              }
+              if ($('#four-q-violation').is(':checked')) {
+                  whereConditions.push("fac_qtrs_i < '5'");
+              }
+              if ($('#five-q-violation').is(':checked')) {
+                  whereConditions.push("fac_qtrs_i > '5'");
+              }
+              if (whereConditions.length > 0) {
+                  sql+= ' WHERE ' + whereConditions.join(' AND ');
+              }
+              console.log(sql);
+              dataLayer.setSQL(sql);
+           }
+          
+          $('#major').change(function (){
+              updateSql();
+          });
+          $('#synthetic').change(function (){
+              updateSql();
+          });
+          $('#minor').change(function (){
+              updateSql();
+          });
+          $('#no-violation').change(function (){
+              updateSql();
+          });
+          $('#non-compliance').change(function (){
+              updateSql();
+          });
+          $('#violation').change(function (){
+              updateSql();
+          });
+          $('#four-q-violation').change(function (){
+              updateSql();
+          });
+          $('#five-q-violation').change(function (){
+              updateSql();
+          });    
+
+         
+          function updateRoadsSql() {
+              var sqlTwo = "SELECT * FROM truck_major";
+              var whereConditions = [];
+              if ($('#major-roads').is(':checked')) {
+                  whereConditions.push("route_ty = 'Major'");
+              }
+              if ($('#truck-routes').is(':checked')) {
+                  whereConditions.push("route_ty = 'Truck'");
+              }
+              if (whereConditions.length > 0) {
+                  sqlTwo+= ' WHERE ' + whereConditions.join(' OR ');
+              }
+              console.log(sqlTwo);
+              dataLayerRoads.setSQL(sqlTwo);
+           }
+                $('#major-roads').change(function (){
+              updateRoadsSql();
+          });      
+                $('#truck-routes').change(function (){
+              updateRoadsSql();
+                });               
+          });          
+    </script>
+    
+    
+    
+<!--    java for accordion -->
+
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.one").click(function(){
+            $("#panel.one").slideToggle("slow");
+    });
+  });     
+    </script>
+    
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.two").click(function(){
+            $("#panel.two").slideToggle("slow");
+    });
+  });     
+    </script>
+    
+<!--   HTML for move over changes-->
+    <script>
+    function mOverone(obj) {
+        obj.innerHTML = "Check this out"
+    }
+    function mOutone(obj) {
+        obj.innerHTML = "Point Source Pollution"
+    }
+    </script>
+    
+        <script>
+    function mOvertwo(obj) {
+        obj.innerHTML = "Check this out too"
+    }
+    function mOuttwo(obj) {
+        obj.innerHTML = "Nonpoint Source Pollution"
+    }
+    </script>
+    
+<!--    Script for tabs     -->
+    <script>
+    function openCity(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+        
+        tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tabcontent.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+        
+        document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+    
+    </script>
+                    
+</head>
+    
+<body>
+<!--map-->
+    <div id="map"></div>
+
+    
+<!--sidebox-->
+    <div id="side-box" class="sidepanel" style="display:block;">
+        <div class="wrapper">
+        <div id="title-text">
+            <h1>Newark: Air Pollution Risk</h1>
+        </div>
+        
+        <!-- start tabs         -->
+    <br>
+    <ul class="tab">
+        <li><a href="#" class="tablinks" onclick="openCity(event,'Home')">Home</a></li>
+        <li><a href="#" class="tablinks" onclick="openCity(event,'Pollution')">Pollution</a></li>
+        
+        <li><a href="#" class="tablinks" onclick="openCity(event,'Methods')">Methods</a></li>
+        </ul>
+        
+
+<!-- Tab #1 - Home        -->
+        <div id="Home" class="tabcontent">
+            <h3>Home</h3>
+            <p> Newark is a contaminated pit</p>
+        </div>
+        
+<!-- Tab #2 - Pollution             -->
+        <div id="Pollution" class="tabcontent">
+             <h3>Pollution</h3>
+            <h4>Degredation of air quality from emissions. Two types of sources - point and nonpoint</h4>
+            
+<!--        Point source pollution          -->
+
+         <div id="flip" class="one" onmouseover="mOverone(this)" onmouseout="mOutone(this)" style="background: #FF9009;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: inherit;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;
+    border-bottom: solid black 1px; border-left: solid #FF9009 5px; border-right: solid #FF9009 5px;
+    border-top: solid black 1px;">Point Source Pollution</div>
+        
+        <div id="panel" class="one" style="margin 20px;">
+        <div id="receptor-description">
+                <h4>Point source pollution is from a single stationary source, for example waste incinerators.</h4>
+             </div>
+        <div id="data-selection">
+            <h4>Point source pollution facilities permitted by the Clean Air Act</h4>
+                <h4>    Types of Permits:
+            </h4>                
+                <input type="checkbox" id="major">
+                     <label class="checkbox-label" for="major">Major Emissions</label>
+            <br>
+                <input type="checkbox" id="synthetic">
+                    <label class="checkbox-label" for="synthetic">Synthetic Minor Emissions</label> 
+            <br>
+                <input type="checkbox" id="minor">
+                    <label class="checkbox-label" for="minor">Minor Emissions</label>
+            <br>
+            <h4>Compliance Status:</h4>
+                <input type="checkbox" id="no-violation">
+                    <label class="checkbox-label" for="no-violation">No Violation</label>
+            <br>
+                <input type="checkbox" id="non-compliance">
+                    <label class="checkbox-label" for="non-compliance">In Violation</label>
+            <br>
+                <input type="checkbox" id="violation">
+                    <label class="checkbox-label" for="violation">Serious Violation</label>
+            <br>
+            <h4>Facilities with violations in the last 12 months:</h4>
+                <input type="checkbox" id="four-q-violation">
+                    <label class="checkbox-label" for="four-q-violation">Less than 4 quarters in violation</label>
+            <br>
+                <input type="checkbox" id="five-q-violation">
+                    <label class="checkbox-label" for="in-violation">5 or more quarters in violation</label>
+            
+        
+        </div>
+            </div>
+        
+<!--        Nonpoint source               -->
+        
+        <div id="flip" class="two"  onmouseover="mOvertwo(this)" onmouseout="mOuttwo(this)" style="background: #FF9009;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: inherit;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;
+    border-bottom: solid black 1px; border-left: solid #FF9009 10px;
+    border-top: solid black 1px;">Nonpoint Source Pollution</div>
+        <div id="panel" class="two" style="margin 20px;">
+            <h4>Nonpoint source pollution is from several different sources such as busy highways.</h4>
+            <h4>Roads:</h4>
+            <input type="checkbox" id="major-roads">
+                    <label class="checkbox-label" for="major-roads">Major Roads</label>
+            <br>
+            <input type="checkbox" id="truck-routes">
+                    <label class="checkbox-label" for="truck-routes">Truck Routes</label>
+
+        </div>
+    </div>
+<!--        ends Tab #2     -->
+
+<!--        Tab #3 - Methods  -->
+        <div id="Methods" class="tabcontent">
+            <h3>Methods</h3>
+            <p>Methods go here</p>
+        
+        </div>
+<!--        ends fragment-3     -->
+
+
+ 
+        </div></div>
+<!--    ends sidebox        -->
+    
+
+    
+</body>
+</html>
