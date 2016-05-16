@@ -589,17 +589,10 @@
         <div id="Methods" class="tabcontent">
            <h3>Methods:</h3>
             <p>
-            Air quality risk was analyzed using proximity to 5 factors: major roads, truck routes, rail lines, Newark airport, and facilities permitted by the CAA
+            Air quality risk was analyzed using proximity to 5 factors: major roads, truck routes, rail lines, Newark airport, and facilities that have violated their CAA permitted.
 </p>
-            <ul>
-            <li>Major roads were selected from the NJDOT roads shapefile and clipped to Newark boundaries. Interstate Highways, US Highways, and State Highways were identified as the major roadways in Newark.</li>                
-            <li>Truck routes were selected using the F-An Ordinance Amending Section 23:4-1 describing the truck routes for trucks over 4 tons and selected from the NJDOT shapefile.</li>
-            <li>Rail line data was downloaded and used from the NJOIT with all of the rail lines going through Newark and clipped to the area.</li>
-            <li>The boundaries of Newark Airport were exported from the Land Use layer.</li>
-            <li>Facilities with CAA major permits that have violated their permit at least once within the last 3 years.</li>
+           <p>Major roads were selected from the NJDOT roads shapefile and clipped to Newark boundaries. Interstate Highways, US Highways, and State Highways were identified as the major roadways in Newark. Truck routes were selected using the F-An Ordinance Amending Section 23:4-1 describing the truck routes for trucks over 4 tons and selected from the NJDOT shapefile. Rail line data was downloaded and used from the NJOIT with all of the rail lines going through Newark and clipped to the area. The boundaries of Newark Airport were exported from the Land Use layer.</p>
                  
-                    </ul>
-
             <p>Facilities permitted by the CAA were obtained from the EPA’s compliance status database. Data was downloaded with lat/lon points and used to convert to points in ArcGIS. They CAA permits were selected from the data. For the risk analysis only facilities with major permits and at least one quarter in the last 12 that they were in violation of their permit were used. For the map, all of the CAA permitted facilities are used. 
             </p>
             <p>Next a buffer was set on the point source of 1 mile and set as a high risk area. A second buffer was set on the point sources of 1.5 miles and labeled elevated risk. These buffers were dissolved together to create one, point source risk layer. The nonpoint sources were buffered first to 500 feet and set as the high risk area and then to 1000 feet and set as the elevated risk area. Each set of nonpoint source high risk buffer and elevated risk buffer was dissolved (e.g. the truck route 500 ft buffer and the 1000 ft buffer were dissolved, then the major roads 500 ft and 1000 ft buffer were dissolved, etc.). The buffer distances for nonpoint and point sources were chosen based on an estimate of several literature reviews. Next, each pollution source was converted to a raster. The rasters were reclassified as follows:
