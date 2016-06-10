@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">  
+    
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+    
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    
+    
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+    <style>
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+
+        .sidepanel {
+            background-color: #FFF;
+            position: absolute;
+            top: 0;
+/*            right: 0;*/
+            bottom: 0;
+            width: 20%;
+            height: 100%;
+            overflow: auto;
+            border-left: solid #585858 1px;
+        }
+        .wrapper{
+            display: block;
+            padding: 4px 30px 0 30px; 
+        }
+        #title-text {
+            border-bottom: 4px solid darkred;
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            text-align: center;
+        }
+        
+                <style>
+        #panel, #flip {
+            padding: 20px;
+            text-align: center;
+            border: solid 1px;
+            font-weight: bold;
+        }
+
+        #panel {
+            margin: 5px;
+            display: none;        
+        }
+    
+        
+    </style>
+    
+          <script>
+        var dataLayer;
+    $(document).ready(function () {
+        cartodb.createVis('map', 'https://mitcj643.cartodb.com/api/v2/viz/54d37106-2ab7-11e6-ab32-0ea31932ec1d/viz.json')
+        .done(function (vis, layers) {
+            dataLayer = layers[1].getSubLayer(0);
+            });
+        $('.zip-picker').keyup(function () {
+            var name = $(this).val();
+            var sql;
+            if (name === '') {
+                sql = "SELECT * FROM tiger_pts_zip_join";
+            }
+            else {
+                sql = "SELECT * FROM tiger_pts_zip_join WHERE ZCTA5CE10 ilike '%" + name + "%'";
+            }
+            dataLayer.setSQL(sql);
+            });
+        
+        $('.county-picker').keyup(function () {
+            var name = $(this).val();
+            var sql;
+            if (name === '') {
+                sql = "SELECT * FROM tiger_pts_zip_join";
+            }
+            else {
+                sql = "SELECT * FROM tiger_pts_zip_join WHERE county ilike '%" + name + "%'";
+            }
+            dataLayer.setSQL(sql);
+            });
+        
+        function updateSql() {
+              var sqlBuffer = "SELECT * FROM tiger_pts_zip_join";
+              var whereConditions = [];
+              if ($('#buffer-one').is(':checked')) {
+                  whereConditions.push("distance = '1.5'");
+              }
+              if ($('#buffer-two').is(':checked')) {
+                  whereConditions.push("distance = '5'");
+              }
+              if ($('#buffer-three').is(':checked')) {
+                  whereConditions.push("distance = '15'");
+              }
+              if ($('#buffer-four').is(':checked')) {
+                  whereConditions.push("distance = '30'");
+              }
+            
+              if (whereConditions.length > 0) {
+                  sqlBuffer+= ' WHERE ' + whereConditions.join(' OR ');
+              }
+            
+              console.log(sqlBuffer);
+              dataLayer.setSQL(sqlBuffer);
+           }
+        
+            $('#buffer-one').change(function (){
+              updateSql();
+          });
+        
+            $('#buffer-two').change(function (){
+              updateSql();
+          });
+        
+            $('#buffer-three').change(function (){
+              updateSql();
+          });
+            $('#buffer-four').change(function (){
+              updateSql();
+          });
+        
+        
+        
+        });  
+    </script>
+    
+    
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.county").click(function(){
+            $("#panel.county").slideToggle("slow");
+    });
+  });     
+    </script>
+       
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.zip-code").click(function(){
+            $("#panel.zip-code").slideToggle("slow");
+    });
+  });     
+    </script>
+    
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.address").click(function(){
+            $("#panel.address").slideToggle("slow");
+    });
+  });     
+    </script>
+    
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.buffer").click(function(){
+            $("#panel.buffer").slideToggle("slow");
+    });
+  });     
+    </script>    
+    
+    
+    
+</head>
+<body>
+    <div id="map"></div>
+    
+    
+    <!--sidebox-->
+    <div id="side-box" class="sidepanel" style="display:block;">
+        <div class="wrapper">
+        <div id="title-text">
+            <h1>Proximity to CPV Plant</h1>
+            </div>
+            <p style="font-weight: bold; font-size: 16px;">Use the following search tools to find out how close you are to the PVC Plant.</p>
+        
+ 
+            <div id="flip" class="county" style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">County</div> 
+            
+            
+            <div id="panel" class="county" style="margin 20px;">
+        <div id="county-search">
+            <p style="text-indent: 30px;">County Search</p>
+            <div>
+                <input type="text" class="county-picker" placeholder="Enter County" />
+            </div>            
+            
+
+                </div>
+            </div>
+            
+            <div id="flip" class="zip-code"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Zip Code</div>      
+        
+                  
+            <div id="panel" class="zip-code" style="margin 20px;">
+        <div id="zip-search">
+            <p style="text-indent: 30px;">Zip Code Search</p>
+            <div>
+                <input type="text" class="zip-picker" placeholder="Enter Zip Code" />
+            </div>            
+            
+                </div>
+            </div>
+            
+            
+            
+            
+           <div id="flip" class="address"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Address</div>
+            
+                <div id="panel" class="address" style="margin 20px;">
+        <div id="address-search">
+            <p style="text-indent: 30px;">Address Search</p>
+            <p>Use the search bar on the map to find your address.</p>
+                </div>
+            </div>
+            
+            
+           <div id="flip" class="buffer"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Buffers</div>
+            
+                <div id="panel" class="buffer" style="margin 20px;">
+        <div id="county-search">
+            <p style="text-indent: 30px;">Exlpore the different distances from the CPV Plant.</p>
+            <div>
+              
+                <input type="checkbox" id="buffer-one">
+                     <label class="checkbox-label" for="buffer-one">1.5 Miles</label>
+                <br>
+                <input type="checkbox" id="buffer-two">
+                     <label class="checkbox-label" for="buffer-two">5 Miles</label>
+                <br>                
+                <input type="checkbox" id="buffer-three">
+                     <label class="checkbox-label" for="buffer-three">15 Miles</label>
+                <br>                
+                <input type="checkbox" id="buffer-four">
+                     <label class="checkbox-label" for="buffer-four">30 Miles</label>
+            </div>
+            
+            
+                </div>
+            </div>            
+            
+            
+            
+<!--        end side panel      -->
+        </div>
+        </div>
+</body>
+</html>
