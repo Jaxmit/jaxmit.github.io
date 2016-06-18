@@ -84,7 +84,6 @@
         }
         
         
-        
         div#air-station.bullet {
             background: #000000;
         }   
@@ -120,7 +119,10 @@
               
               
     $(document).ready(function () {
-        cartodb.createVis('map', 'https://thenewschool.cartodb.com/u/mitcj6436/api/v2/viz/7a62afe4-3288-11e6-9143-0e5db1731f59/viz.json')
+        cartodb.createVis('map', 'https://thenewschool.cartodb.com/u/mitcj6436/api/v2/viz/7a62afe4-3288-11e6-9143-0e5db1731f59/viz.json',
+        {
+            cartodb_logo:false,
+        })
         .done(function (vis, layers) {
             dataLayerEJ = layers[1].getSubLayer(1);
             dataLayersites = layers[1].getSubLayer(3);
