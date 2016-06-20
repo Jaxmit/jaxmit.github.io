@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    
+    
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">  
+    
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+    
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    
+    
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+    
+    <style>
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+/*            font-family: sans-serif;*/
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        a {
+            color: darkred;
+        }
+        
+
+        .sidepanel {
+            background-color: #FFF;
+            position: absolute;
+            top: 0;
+/*            right: 0;*/
+            bottom: 0;
+            width: 30%;
+            height: 100%;
+            overflow: auto;
+            border-right: solid #969696 1px;
+        }
+        .wrapper {
+            display: block;
+            padding: 4px 30px 0 30px; 
+        }
+        #search-wrapper {
+            display: block;
+            padding: 4px 30px 30px 30px;
+            border-bottom: solid darkred 4px; 
+        }
+        
+        #data-wrapper {
+            display: block;
+            padding: 4px 30px 0 30px;
+        }
+        #title-text {
+            border-bottom: 4px solid darkred;
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            text-align: center;
+        }
+        
+                <style>
+        #panel, #flip {
+            padding: 20px;
+            text-align: center;
+            border: solid 1px;
+            font-weight: bold;
+        }
+
+        #panel {
+            margin: 5px;
+            display: none;        
+        }
+        
+        div.cartodb-zoom {
+            margin: 20px 0 0 32%;
+        }
+        
+        
+        
+        div#air-station.bullet {
+            background: #000000;
+        }   
+             
+        div#PESite.bullet {
+            background: #FF9900;
+        }   
+        div#distance-buffer.bullet {
+            background: #FFFFFF;
+            border: 1.5px solid black;
+        }   
+        div#not-peja.bullet {
+            background: #7aad6b;
+        }    
+        div#peja.bullet {
+            background: #B81609;
+        }   
+        div#congr-distr.bullet {
+            background: #FFFFFF;
+            border: 2px solid #99004c;
+            
+        }    
+        
+               
+        
+    </style>
+    
+          <script>
+        var dataLayerEJ;
+        var dataLayersites;
+        var dataLayerproxi;
+        var dataLayerCD;
+              
+              
+    $(document).ready(function () {
+        cartodb.createVis('map', 'https://thenewschool.cartodb.com/u/mitcj6436/api/v2/viz/7a62afe4-3288-11e6-9143-0e5db1731f59/viz.json',
+                          {
+            cartodb_logo:false,
+                          
+                          })
+        .done(function (vis, layers) {
+            dataLayerEJ = layers[1].getSubLayer(1);
+            dataLayersites = layers[1].getSubLayer(3);
+            dataLayerproxi = layers[1].getSubLayer(2);
+            dataLayerCD = layers[1].getSubLayer(0);
+            });
+       
+
+        
+        function updateSql() {
+              var sqlEJ = "SELECT * FROM peja_2014_update";
+              var whereConditions = [];
+            
+//            Change to Yes PEJA and No PEJA => which layer? 
+              if ($('#EJ_one').is(':checked')) {
+                  whereConditions.push("ej_poten4 = 'PEJA'");
+              }
+              if ($('#EJ_two').is(':checked')) {
+                  whereConditions.push("ej_poten4 = 'Not PEJA'");
+              }
+              if (whereConditions.length > 0) {
+                  sqlEJ+= ' WHERE ' + whereConditions.join(' OR ');
+              }
+            
+              console.log(sqlEJ);
+              dataLayerEJ.setSQL(sqlEJ);
+           }
+        
+            $('#EJ_one').change(function (){
+              updateSql();
+          });
+        
+            $('#EJ_two').change(function (){
+              updateSql();
+          });
+        
+//        SQL for sites 
+        
+  function updateSitesSql() {
+              var sqlsites = "SELECT * FROM comp_air_merge";
+              var whereConditions = [];
+              if ($('#pot_site_one').is(':checked')) {
+                  whereConditions.push("name2 = 'CPV Power Plant - Under Construction'");
+              }
+              if ($('#pot_site_two').is(':checked')) {
+                  whereConditions.push("name2 = 'Minisink Compressor Station'");
+              }
+              if ($('#pot_site_three').is(':checked')) {               
+                  whereConditions.push("name2 = 'Proposed Highland Compressor Station'");
+              }
+              if ($('#air_one').is(':checked')) {
+                  whereConditions.push("name2 = 'Wallkill, Ballard Road'");
+              }
+              if ($('#air_two').is(':checked')) {
+                  whereConditions.push("name2 = 'Wallkill, Wakefurn Food'");
+              }
+              if ($('#air_three').is(':checked')) {
+                  whereConditions.push("name2 = 'Valley Central'");
+              }
+              if ($('#air_four').is(':checked')) {
+                  whereConditions.push("name2 = 'Newburgh'");
+              }
+              if ($('#air_five').is(':checked')) {
+                  whereConditions.push("name2 = 'Rockland County'");
+              }
+      
+              if (whereConditions.length > 0) {
+                  sqlsites+= ' WHERE ' + whereConditions.join(' OR ');
+              }
+            
+              console.log(sqlsites);
+              dataLayersites.setSQL(sqlsites);
+           }
+        
+            $('#pot_site_one').change(function (){
+              updateSitesSql();
+          });
+        
+            $('#pot_site_two').change(function (){
+              updateSitesSql();
+          });       
+            $('#pot_site_three').change(function (){
+              updateSitesSql();
+          });
+            $('#air_one').change(function (){
+              updateSitesSql();
+          });       
+            $('#air_two').change(function (){
+              updateSitesSql();
+          });        
+            $('#air_three').change(function (){
+              updateSitesSql();
+          });       
+            $('#air_four').change(function (){
+              updateSitesSql();
+          });       
+            $('#air_five').change(function (){
+              updateSitesSql();
+          }); 
+        
+        
+        
+//        SQL for distance
+        
+          function updateproxSql() {
+              var sqlprox = "SELECT * FROM prox";
+              var whereConditions = [];
+              if ($('#prox_one').is(':checked')) {
+                  whereConditions.push("distance = '2'");
+              }
+              if ($('#prox_two').is(':checked')) {
+                  whereConditions.push("distance = '10'");
+              }
+              if ($('#prox_three').is(':checked')) {
+                  whereConditions.push("distance = '30'");
+              }
+              if (whereConditions.length > 0) {
+                  sqlprox+= ' WHERE ' + whereConditions.join(' OR ');
+              }
+            
+              console.log(sqlprox);
+              dataLayerproxi.setSQL(sqlprox);
+           }
+        
+            $('#prox_one').change(function (){
+              updateproxSql();
+          });
+        
+            $('#prox_two').change(function (){
+              updateproxSql();
+          }); 
+        
+            $('#prox_three').change(function (){
+              updateproxSql();
+          }); 
+        
+        
+//   SQL for CD
+        
+          function updateCDSql() {
+              var sqlCD = "SELECT * FROM cd_polygons";
+              var whereConditions = [];
+              if ($('#CD_one').is(':checked')) {
+                  whereConditions.push("cd114fp = '17'");
+              }
+              if ($('#CD_two').is(':checked')) {
+                  whereConditions.push("cd114fp = '18'");
+              }
+              if ($('#CD_three').is(':checked')) {
+                  whereConditions.push("cd114fp = '19'");
+              }
+              if (whereConditions.length > 0) {
+                  sqlCD+= ' WHERE ' + whereConditions.join(' AND ');
+              }
+            
+              console.log(sqlCD);
+              dataLayerCD.setSQL(sqlCD);
+           }
+        
+            $('#CD_one').change(function (){
+              updateCDSql();
+          });
+        
+            $('#CD_two').change(function (){
+              updateCDSql();
+          }); 
+            $('#CD_three').change(function (){
+              updateCDSql();
+          });
+        
+        
+        
+        
+        });  
+    </script>
+    
+<!--    script for accordions   -->
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.PEJA").click(function(){
+            $("#panel.PEJA").slideToggle("slow");
+    });
+  });     
+    </script>
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.intro").click(function(){
+         $("#panel.intro").slideToggle("slow");
+    });
+  });     
+    </script>   
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.pe_sites").click(function(){
+         $("#panel.pe_sites").slideToggle("slow");
+    });
+  });     
+    </script>
+    
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.buffer").click(function(){
+            $("#panel.buffer").slideToggle("slow");
+    });
+  });     
+    </script>
+    
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.cong_dist").click(function(){
+            $("#panel.cong_dist").slideToggle("slow");
+    });
+  });     
+    </script>    
+
+    <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.data").click(function(){
+            $("#panel.data").slideToggle("slow");
+    });
+  });     
+    </script>  
+    
+     <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.air_mon").click(function(){
+            $("#panel.air_mon").slideToggle("slow");
+    });
+  });     
+    </script>
+    
+     <script type="text/javascript">
+  $(document).ready(function(){
+    $("#flip.data_info").click(function(){
+            $("#panel.data_info").slideToggle("slow");
+    });
+  });     
+    </script> 
+    
+
+    
+</head>
+<body>
+    <div id="map"></div>
+    
+    
+    
+    
+    
+    <!--sidebox-->
+    <div id="side-box" class="sidepanel" style="display:block;">
+        <div class="wrapper">
+        <div id="title-text">
+            <h2>Potential EJ Areas within the proposed ESU and CPV Project Corridor</h2>
+            </div>
+        <div id="search-wrapper">
+ 
+            <div id="flip" class="intro" style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Introduction</div>    
+            
+            <div id="panel" class="intro" style="margin 20px;">
+        <div>
+            <p style="text-indent: 30px;">Two new large-scale, highly industrial and toxic fracked gas infrastructure projects are slated for NYS upstate region as seen in the project map.  The ESU - Eastern System Upgrade, brings on new compressor stations as well as new pipeline infrastructure; whereas the CPV Valley power plant will deliver new emission impacts upwards of a 30-mile radius from its site situated immediately south of Middletown, NY.</p>
+            <p style="text-indent: 30px;">Through this independent analysis, Several new PEJA (Potential Environmental Justice Area) tracts have been found in very close proximity to the site, as well as a 10% PEJA potential increase throughout the 30 mile project corridors which fall within 3 congressional districts and 7 counties.  This increase is due to demographic changes that have taken place throughout the NYS upstate region between the original applicant's analysis using 2000 census data, and this independent analysis using more recent census ACS 2014 5-year estimate data.  With significant new toxic emissions resulting from these projects, all families and individuals living in the region are at significant risk- but those living in PEJA areas are particularly at risk.</p>
+                </div>
+            </div>
+        
+ 
+            <div id="flip" class="PEJA" style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">PEJA</div> 
+            
+            
+            <div id="panel" class="PEJA" style="margin 20px;">
+        <div>
+              
+                <input type="checkbox" id="EJ_one">
+                     <label class="checkbox-label" for="EJ_one">Yes PEJA</label>
+                <br>
+                
+                <input type="checkbox" id="EJ_two">
+                     <label class="checkbox-label" for="EJ_two">No PEJA</label>
+                <br>
+                
+
+                </div>
+            </div>
+            
+            <div id="flip" class="pe_sites"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Potential Emissions Sites</div>      
+        
+                  
+            <div id="panel" class="pe_sites" style="margin 20px;">
+        <div>
+                <input type="checkbox" id="pot_site_one">
+                     <label class="checkbox-label" for="pot_site_one">CPV Power Plant</label>
+                <br>
+                
+                <input type="checkbox" id="pot_site_two">
+                     <label class="checkbox-label" for="pot_site_two">Minisink Compressor Station</label>
+                <br>       
+                          
+                <input type="checkbox" id="pot_site_three">
+                     <label class="checkbox-label" for="pot_site_three">Proposed Highland Compressor Station</label>
+                </div>
+            </div>
+            
+            
+            
+            
+           <div id="flip" class="buffer"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Distance</div>
+            
+                <div id="panel" class="buffer" style="margin 20px;">
+        <div>
+                <input type="checkbox" id="prox_one">
+                     <label class="checkbox-label" for="prox_one">2 Miles</label>
+                <br>
+                <input type="checkbox" id="prox_two">
+                     <label class="checkbox-label" for="prox_two">10 Miles</label>
+                <br>
+                <input type="checkbox" id="prox_three">
+                     <label class="checkbox-label" for="prox_three">30 Miles</label>
+            </div>
+            </div>
+            
+           <div id="flip" class="cong_dist"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Congressional Districts</div>
+            
+                <div id="panel" class="cong_dist" style="margin 20px;">
+            <div>
+              
+                <input type="checkbox" id="CD_one">
+                <label class="checkbox-label" for="CD_one">Congressional District 17</label>
+                <br>
+                <input type="checkbox" id="CD_two">
+                     <label class="checkbox-label" for="CD_two">Congressional District 18</label>
+               <br>
+                <input type="checkbox" id="CD_three">
+                     <label class="checkbox-label" for="CD_three">Congressional District 19</label>
+               
+            </div>
+                </div>
+                  
+             <div id="flip" class="air_mon"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Current Air Monitoring Sites</div>
+            
+                <div id="panel" class="air_mon" style="margin 20px;">
+        <div>
+            <input type="checkbox" id="air_one">
+                     <label class="checkbox-label" for="air_one">Wallkill, Ballard Road</label>
+            <br>
+            <input type="checkbox" id="air_two">
+                     <label class="checkbox-label" for="air_one">Wallkill, Wakefurn Food</label>
+            <br>
+            <input type="checkbox" id="air_three">
+                     <label class="checkbox-label" for="air_two">Scotchtown</label>
+            <br>
+            <input type="checkbox" id="air_four">
+                     <label class="checkbox-label" for="air_three">Valley Central</label>
+            <br>
+            <input type="checkbox" id="air_five">
+                     <label class="checkbox-label" for="air_four">Newburgh</label>
+            <br>
+            <input type="checkbox" id="air_six">
+                     <label class="checkbox-label" for="air_five">Rockland County</label>
+            </div>
+            </div>  
+              
+            
+            
+             <div id="flip" class="data_info"  style="background: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 35px;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: 30px;
+    padding: 1px;">Data</div>
+            
+                <div id="panel" class="data_info" style="margin 20px;">
+        <div>
+            <a href="http://bit.ly/1UBeZcL" target="_blank" style="font-color: dark red;">Data</a>
+            
+            </div>
+            </div>          
+                    
+                    
+                    
+                    
+<!--         end search wrapper           -->
+            </div>
+      
+    
+     <!--    end wrapper -->
+        </div>       
+<!--        end side panel      -->
+        </div>
+
+</body>
+</html>
