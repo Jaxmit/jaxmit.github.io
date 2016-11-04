@@ -1,0 +1,211 @@
+<html>
+<head>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">  
+    
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+    
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/themes/css/cartodb.css">
+    
+    <script src="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+    
+
+
+
+
+
+
+<style>
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+/*            font-family: sans-serif;*/
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+
+        .sidepanel {
+            background-color: #FFF;
+            position: absolute;
+            top: 0;
+/*            right: 0;*/
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            overflow: visible;
+            border-right: solid #969696 1px;
+            text-align: center;
+        }
+        .wrapper{
+            display: block;
+            padding: 4px 30px 0 30px; 
+        }
+        #panel, #flip {
+            padding: 5px;
+            border: solid 1px #c3c3c3;
+            background: white;
+            width: 20%;
+        }
+
+        #panel {
+            padding: 5px;
+            display: none;
+            text-align: left;
+        }
+    
+</style>
+
+
+<script>
+
+
+var dataLayer;
+var dataLayerZip;
+
+
+ $(document).ready(function () {
+        cartodb.createVis('map', 'https://jeeho-b.carto.com/api/v2/viz/d4080f36-9bd2-11e6-80d6-0e3ff518bd15/viz.json',
+                          {
+            cartodb_logo:false,
+                          
+                          })
+        .done(function (vis, layers) {
+            dataLayer = layers[1].getSubLayer(0);
+            dataLayerZip = layers[1].getSubLayer(1);
+            });
+
+
+
+//Java for checkboxes
+        function updateSql() {
+              var sql = "SELECT * FROM table_29";
+                var sqlzip = "SELECT * FROM ZIPCODE"
+              var whereConditions = [];
+                  if ($('#PE_ind').is(':checked')) {
+                  whereConditions.push("ind = 'true'");
+              }
+ 	 if ($('#PE_adv').is(':checked')) {
+                  whereConditions.push("adv = 'true'");
+              }
+ 	 if ($('#PE_gov').is(':checked')) {
+                  whereConditions.push("gov = 'true'");
+              }
+ 	 if ($('#PE_bus').is(':checked')) {
+                  whereConditions.push("bus = 'true'");
+              }
+ 	 if ($('#PE_law').is(':checked')) {
+                  whereConditions.push("lf = 'true'");
+              }
+            
+            if (whereConditions.length > 0) {
+                  sql+= ' WHERE ' + whereConditions.join(' AND ');
+              }
+              console.log(sql);
+              dataLayer.setSQL(sql);
+           }
+          
+        $('#PE_ind').change(function (){
+              updateSql();
+          });
+        $('#PE_adv').change(function (){
+              updateSql();
+          });
+        $('#PE_gov').change(function (){
+              updateSql();
+          });
+        $('#PE_bus').change(function (){
+              updateSql();
+          });
+        $('#PE_law').change(function (){
+              updateSql();
+          });
+       });
+    
+    
+    
+//    $('.zip-picker').keyup(function () {
+//            var name = $(this).val();
+//            var sqlzip;
+//            if (name === '') {
+//                sql = "SELECT * FROM DATALAYER";
+//            }
+//            else {
+//                sql = "SELECT * FROM DATALAYER WHERE ZIPCODE ilike '%" + name + "%'";
+//            }
+//            dataLayerzip.setSQL(sqlzip);
+//            });
+        
+    
+
+
+</script>    
+<script>
+    $(document).ready(function(){
+    $("#flip").click(function(){
+        $("#panel").slideToggle("slow");
+    });
+});
+    
+    </script>
+    
+    </head>
+
+
+<body>
+    <div id="map"></div>
+    
+
+<!--top panel-->
+    <div id="side-box" class="sidepanel" style="display:block;">
+<!--wrapper-->
+<!--        <div class="wrapper">-->
+            
+            <h1 style="margin: 17px;">Map Title</h1>
+<!--        </div>-->
+            
+        <div id="flip">PennEast</div>
+            
+<!--what is says when you click-->
+            <div id="panel">
+<div>
+    <p>Intervenors:</p>
+        <input type="checkbox" id="PE_ind">
+                     <label class="checkbox-label" for="PE_ind">Individuals</label>
+                <br>
+        <input type="checkbox" id="PE_adv">
+                     <label class="checkbox-label" for="PE_adv">Advocacy Groups</label>
+                <br>
+	   <input type="checkbox" id="PE_gov">
+                     <label class="checkbox-label" for="PE_gov">Government Agencies</label>
+                <br>
+        <input type="checkbox" id="PE_bus">
+                     <label class="checkbox-label" for="PE_bus">Businesses</label>
+                <br>
+	   <input type="checkbox" id="PE_law">
+                     <label class="checkbox-label" for="PE_law">Law Firms</label>
+                <br>
+    
+    <p>Zip Code Search</p>
+            <div>
+                <input type="text" class="zip-picker" placeholder="Zip Code" />
+            </div> 
+</div>
+</div>
+    </div>
+    
+    
+    
+</body>
+</html>
