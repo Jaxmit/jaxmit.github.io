@@ -1,0 +1,406 @@
+<html>
+<head>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">  
+    
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+    
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/themes/css/cartodb.css">
+    
+    <script src="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"></script>
+    
+    
+
+
+
+
+<style>
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: sans-serif;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+
+        .sidepanel {
+            background-color: #FFF;
+            position: absolute;
+            top: 0;
+/*            right: 0;*/
+            bottom: 0;
+            width: 100%;
+            height: 13%;
+            color: #f4d192;
+            overflow: visible;
+            background: #2a2e2e;
+            border-bottom: solid #2B2F2E 1px;
+/*            text-align: center;*/
+        }
+    
+        .wrapper{
+            display: block;
+            padding: 4px 30px 0 30px;
+            background: 2a2e2e;
+        }
+        #panel, #flip {
+            padding: 5px;
+            border: solid 1px #c3c3c3;
+            background: white;
+            width: 20%;
+        }
+
+        #panel {
+            padding: 5px;
+            display: none;
+            text-align: left;
+        }
+    
+    h1{
+        background: #2a2e2e;
+        color: #f4d192
+    }
+    
+    
+    
+       ul.tab {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        ul.tab li {
+            float: left;
+            width: 20%;
+        }
+        ul.tab li a {
+            display: inline-block;
+            color: black;
+            text-align: center;
+            padding: 20px 0px 20px 0px;
+            width: 100%;
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 18px;
+            background: white;
+            border: black 2px solid;
+        }
+    
+        
+        ul.tab li a:hover {
+/*            font-weight: bold;*/
+        }
+        ul.tab li a:focus, .active {
+            background-color: skyblue;
+/*            font-weight: bold;*/
+/*            font-size: 18px;*/
+        }
+        .tablinks{
+/*            font-family: monospace;*/
+        }
+        .tabcontent {
+        display: none;
+        padding: 1px 15px 10px;
+        border-top: none;
+/*            width: 75%;*/
+        }    
+    
+    
+    
+    div#PennEast.tabcontent {
+        display: none;
+        background: #2a2e2e;
+        color: #f4d192;
+        border-bottom: black 1px solid;
+        
+    }
+    
+    
+    div#aim.tabcontent {
+        display: none;
+        background: #2a2e2e;
+        color: #f4d192;
+        border-bottom: black 1px solid;
+
+    }
+    
+    
+    div#NMD.tabcontent {
+        display: none;
+        background: #2a2e2e;
+        color: #f4d192;
+        border-bottom: black 1px solid;
+    }
+    
+    div#ESU.tabcontent {
+        display: none;
+        background: #2a2e2e;
+        color: #f4d192;
+        border-bottom: black 1px solid;
+    }
+    
+    div#LVC.tabcontent {
+        display: none;
+        background: #2a2e2e;
+        color: #f4d192;
+        border-bottom: black 1px solid;
+    }
+    
+    
+        div.cartodb-share a {
+            display: none;
+        }
+    
+    
+        div.cartodb-searchbox {
+            position: inherit;
+            margin: 850px 20px
+        }
+    
+     div.cartodb-zoom {
+         position: inherit;
+            margin: 750px 20px;
+        }
+    
+    .topright {
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
+    }
+        
+</style>
+
+
+<script>
+
+
+var dataLayer;
+var dataLayerZip;
+
+
+ $(document).ready(function () {
+        cartodb.createVis('map', 'https://baej345.carto.com/api/v2/viz/71766cc6-9634-11e6-aeb1-0e3ff518bd15/viz.json',
+                          {
+            cartodb_logo:false,
+                          
+                          })
+        .done(function (vis, layers) {
+            dataLayer = layers[1].getSubLayer(1);
+            dataLayerPE = layers[1].getSubLayer(2);
+            dataLayerVLP = layers[1].getSubLayer(3);
+            dataLayerAIM = layers[1].getSubLayer(4);
+            dataLayerNM = layers[1].getSubLayer(5);
+            });
+
+
+
+//Java for checkboxes
+        function updateSql() {
+              var sqlPE = "SELECT * FROM table_29";
+              var whereConditions = [];
+                  if ($('#PE_ind').is(':checked')) {
+                  whereConditions.push("ind = 'true'");
+              }
+ 	 if ($('#PE_adv').is(':checked')) {
+                  whereConditions.push("adv = 'true'");
+              }
+ 	 if ($('#PE_gov').is(':checked')) {
+                  whereConditions.push("gov = 'true'");
+              }
+ 	 if ($('#PE_bus').is(':checked')) {
+                  whereConditions.push("bus = 'true'");
+              }
+ 	 if ($('#PE_law').is(':checked')) {
+                  whereConditions.push("lf = 'true'");
+              }
+            
+            if (whereConditions.length > 0) {
+                  sqlPE+= ' WHERE ' + whereConditions.join(' AND ');
+              }
+              console.log(sqlPE);
+              dataLayer.setSQL(sqlPE);
+           }
+          
+        $('#PE_ind').change(function (){
+              updateSql();
+          });
+        $('#PE_adv').change(function (){
+              updateSql();
+          });
+        $('#PE_gov').change(function (){
+              updateSql();
+          });
+        $('#PE_bus').change(function (){
+              updateSql();
+          });
+        $('#PE_law').change(function (){
+              updateSql();
+          });
+       });
+    
+    
+    
+    
+        
+    
+
+
+</script>    
+<script>
+    
+function openCity(evt, cityName) {
+    var i, tabcontent, tablinks, tablinkPE, tablinkAIM, tablinkNM, tablinkVLP;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    
+    tablinkPE = document.getElementsByClassName("tablinkPE");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        dataLayerPE.show();
+        dataLayerVLP.hide();
+        dataLayerAIM.hide();
+        dataLayerNM.hide();
+    }
+    
+    tablinkAIM = document.getElementsByClassName("tablinkAIM");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        dataLayerAIM.show();
+        dataLayerPE.hide();
+        dataLayerVLP.hide();
+        dataLayerNM.hide();
+    }
+    
+    tablinkAIM = document.getElementsByClassName("tablinkNM");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        dataLayerAIM.hide();
+        dataLayerPE.hide();
+        dataLayerVLP.hide();
+        dataLayerNM.show();
+    }
+    
+    tablinkAIM = document.getElementsByClassName("tablinkVLP");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        dataLayerAIM.hide();
+        dataLayerPE.hide();
+        dataLayerVLP.show();
+        dataLayerNM.hide();
+    }
+
+
+    
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+</script>
+    
+    </head>
+
+
+<body>
+    <div id="map"></div>
+    
+
+<!--top panel-->
+    <div id="side-box" class="sidepanel" style="display:block;">
+<!--wrapper-->
+<!--        <div class="wrapper">-->
+            
+            <h1 style="margin: 14px 17px;">5 Northeast Pipeline Projects | Intervenors</h1>
+<!--        </div>-->
+        
+        
+    <ul class="tab">
+        <li><a href="javascript:void(0)" class="tablinkPE" onclick="openCity(event,'PennEast')" style="background: #7ac2b9;">&nbsp PE &nbsp</a></li>
+        <li><a href="javascript:void(0)" class="tablinkAIM" onclick="openCity(event,'AIM')"  style="background: #f7a541;">&nbsp AIM &nbsp</a>
+        </li>        
+        <li><a href="javascript:void(0)" class="tablinkNM" onclick="openCity(event,'NMD')"  style="background: #39e7b2;">New Market</a>
+        </li>        
+        <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event,'ESU')"  style="background: #f45d4c;">  &nbsp ESU &nbsp</a>
+        </li>       
+        <li><a href="javascript:void(0)" class="tablinkVLP" onclick="openCity(event,'ESU')"  style="background: #268c8e;">  &nbsp VLC &nbsp</a>
+        </li>
+        </ul>
+        
+<!--Tab one        -->
+        <div id="PennEast" class="tabcontent">
+  <span onclick="this.parentElement.style.display='none'" class="topright">x</span>
+            <p>Intervenors:</p>
+        <input type="checkbox" id="PE_ind">
+                     <label class="checkbox-label" for="PE_ind">Individuals</label>
+                <br>
+        <input type="checkbox" id="PE_adv">
+                     <label class="checkbox-label" for="PE_adv">Advocacy Groups</label>
+                <br>
+	   <input type="checkbox" id="PE_gov">
+                     <label class="checkbox-label" for="PE_gov">Government Agencies</label>
+                <br>
+        <input type="checkbox" id="PE_bus">
+                     <label class="checkbox-label" for="PE_bus">Businesses</label>
+                <br>
+	   <input type="checkbox" id="PE_law">
+                     <label class="checkbox-label" for="PE_law">Law Firms</label>
+                <br>
+    
+</div>
+
+<!--tab two-->
+        <div id="AIM" class="tabcontent">
+            <span onclick="this.parentElement.style.display='none'" class="topright">x</span>
+        <p>Intervenors:</p>
+            More stuff here!
+        
+        </div>
+        
+<!--tab three-->
+        <div id="NMD" class="tabcontent">
+            <span onclick="this.parentElement.style.display='none'" class="topright">x</span>
+        <p>Intervenors:</p>
+            More stuff here!
+        
+        </div>
+        
+        
+        
+<!--tab four    -->
+        <div id="ESU" class="tabcontent">
+            <span onclick="this.parentElement.style.display='none'" class="topright">x</span>
+        <p>Intervenors:</p>
+            More stuff here!
+        
+        </div>
+        
+        
+<!--tab five        -->
+        <div id="VLC" class="tabcontent">
+            <span onclick="this.parentElement.style.display='none'" class="topright">x</span>
+        <p>Intervenors:</p>
+            More stuff here!
+        
+        </div>
+        
+    </div>
+    
+    
+    
+</body>
+</html>
